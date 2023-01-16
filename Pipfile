@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+dagster = "~=1.1.10"
+faiss-cpu= "~=1.7.3"
+langchain = "~=0.0.63"
+openai = "~=0.26.1"
+python-dotenv = "==0.21.0"
+requests = "==2.28.1"
+tiktoken = "*"
+ratelimit = "==2.2.1"
+unstructured = "==0.2.5"
+nltk = "==3.7"
+scikit-learn = "~=1.0"
+jupyter = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"
