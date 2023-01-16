@@ -13,15 +13,30 @@ from pandas import DataFrame
 load_dotenv()
 
 
-def get_summary(input_text):
-    llm = OpenAI(temperature=0)
-    prompt_template = """Write a concise summary of the following:
+def standard_summary_prompt():
+    return """
+    Write a concise summary of the following:
     
     {text}
+    
+    CONCISE SUMMARY:"""
+
+
+def summary_with_users_prompt():
+    return """
+    The following are user messages.
+    Users are identified through a tag <USER: username>, followed by their message.
+    Unknown users have a <USER: unknown> tag.
+    Write a concise summary of the conversations, including users involved and their focus.
+    
+    {text} 
     
     CONCISE SUMMARY:
     """
 
+
+def get_summary(input_text, prompt_template):
+    llm = OpenAI(temperature=0)
     prompt = Prompt(template=prompt_template, input_variables=["text"])
     text_splitter = CharacterTextSplitter()
     mr_chain = MapReduceChain.from_params(llm=llm, prompt=prompt, text_splitter=text_splitter)
@@ -37,6 +52,9 @@ def utc_to_timestamp(utc_time: datetime) -> int:
 
 
 def extract_text(json_data: Union[dict, str, list]) -> str:
+    """NOT USED.
+    This is for extracting text from the json data, but we're using CSVs instead.
+    """
     try:
         if isinstance(json_data, str):
             json_data = json.loads(json_data)
@@ -77,10 +95,25 @@ def filter_dataframe(
     return df
 
 
-def join_text_from_df(df: DataFrame) -> str:
-    df = df[df["text"].notna()]
-    text_ = df["text"].tolist()
+def join_text_from_df(df: DataFrame, column: str) -> str:
+    df = df[df[column].notna()]
+    text_ = df[column].tolist()
     return '\n\n'.join(text_)
+
+
+def join_users_to_text(
+        df: DataFrame,
+        user_col: Union[str, None] = "user",
+        text_col: Union[str, None] = "text_with_real_names"
+) -> DataFrame:
+    """Add the user from the 'user' column to the 'text' column.
+
+    Adds the user at the start of the text string with the format <USER: username>.
+    """
+    df[user_col] = df[user_col].fillna("unknown")
+    df = df[df[text_col].notna()]
+    df[text_col] = "<USER: " + df["user"] + ">: " + df[text_col]
+    return df
 
 
 if __name__ == '__main__':
@@ -94,6 +127,7 @@ if __name__ == '__main__':
         time_range=(utc_to_timestamp(datetime(2023, 1, 8)), utc_to_timestamp(datetime(2023, 1, 16))),
         channel="chat-gpt"
     )
-    text = join_text_from_df(prelim_data)
-    summary = get_summary(text)
+    prelim_data = join_users_to_text(prelim_data)
+    text = join_text_from_df(df=prelim_data, column="text_with_real_names")
+    summary = get_summary(text, summary_with_users_prompt())
     print(summary)
