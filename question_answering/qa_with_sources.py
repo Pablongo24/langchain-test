@@ -70,5 +70,7 @@ if __name__ == "__main__":
         "Where does Brad Pitt live?",
         "What are the main differences between Linux and Windows?"
     ]
-    qa_chain.print_answer(sources=wiki_sources, question=test_question)
+    test_q_idx = 0
+
+    qa_chain.print_answer(sources=wiki_sources, question=test_questions[test_q_idx])
     breakpoint()
