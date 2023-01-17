@@ -1,0 +1,10 @@
+unstructured==0.2.5
+unstructured_api_tools>=0.4.8
+
+ratelimit
+requests
+numpy
+sklearn
+
+# NOTE(robinson) - Required pins for security scans
+jupyter-core>=4.11.2
