@@ -19,7 +19,8 @@ def standard_summary_prompt():
     
     {text}
     
-    CONCISE SUMMARY:"""
+    CONCISE SUMMARY:
+    """
 
 
 def summary_with_users_prompt():
